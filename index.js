@@ -22,9 +22,12 @@ const strings = {
     initPts() {
         ctx.clearRect(0, 0, W, H);
         this.pts = [];
+        const offsetW = (1 - this.size) * W / 2;
+        const offsetH = (1 - this.size) * H / 2;
         for (let i = 0; i < this.numPts; ++i) {
-            this.pts.push(dp.point(Math.random() * W, Math.random() * H));
-            // TODO limit size of randomness by size
+            this.pts.push(
+                dp.point(offsetW + Math.random() * W * this.size, offsetH + Math.random() * H *
+                                                                  this.size));
         }
         // reduce to a nicer initial shape by being convex and non-intersecting
         this.pts = convexHull(this.pts);
