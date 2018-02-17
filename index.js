@@ -14,7 +14,7 @@ const strings = {
     duration  : 10,
     numPts    : 10,
     numStrings: 1,
-    size      : 1,
+    size      : 0.5,
     order     : 1,
     smoothness: 0,
 
@@ -24,13 +24,13 @@ const strings = {
         this.pts = [];
         const offsetW = (1 - this.size) * W / 2;
         const offsetH = (1 - this.size) * H / 2;
-        for (let i = 0; i < this.numPts; ++i) {
+        while (this.pts.length < this.numPts) {
             this.pts.push(
                 dp.point(offsetW + Math.random() * W * this.size, offsetH + Math.random() * H *
                                                                   this.size));
+            // reduce to a nicer initial shape by being convex and non-intersecting
+            this.pts = convexHull(this.pts);
         }
-        // reduce to a nicer initial shape by being convex and non-intersecting
-        this.pts = convexHull(this.pts);
         // TODO add control points for each point corresponding to order
 
         ctx.beginPath();
