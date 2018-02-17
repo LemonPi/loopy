@@ -1,0 +1,19 @@
+{
+  "name": "stringshots",
+  "version": "1.0.0",
+  "description": "Perfectly looping screensavers with strings (closed curves)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "screensaver",
+    "drawpoint",
+    "drawing"
+  ],
+  "author": "Johnson Zhong",
+  "license": "MIT",
+  "dependencies": {
+    "drawpoint": "^1.4.1"
+  }
+}
