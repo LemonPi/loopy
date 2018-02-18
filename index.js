@@ -242,12 +242,12 @@ strings.initPts('weird');
 
 
 const gui = new dat.GUI();
+gui.remember(strings);
 gui.add(strings, 'seed').listen().onFinishChange(function (value) {
     strings.initPts(value);
 });
 gui.add(strings, 'duration', 0, 20);
 gui.add(strings, 'numPts', 0, 20).step(1);
-// gui.add(strings, 'numStrings', 1, 3).step(1);
 gui.add(strings, 'size', 0, 1);
 gui.add(strings, 'minCurvature', 0, 0.3);
 gui.add(strings, 'maxCurvature', 0, 0.5);
@@ -271,6 +271,5 @@ gui.add(strings, 'dashed').onFinishChange(function (dashed) {
     }
 });
 gui.add(strings, 'reroll');
-// gui.add(strings, 'save to GIF');
 
 
