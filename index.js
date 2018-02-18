@@ -59,6 +59,12 @@ const strings = {
                         this.pts[indexWrap(this.pts, i - 1)],
                         1);
             });
+            this.pts.forEach((pt, i) => {
+                this.pts[i].cp1 =
+                    dp.continueCurve(this.pts[indexWrap(this.pts, i - 2)],
+                        this.pts[indexWrap(this.pts, i - 1)],
+                        1);
+            });
         }
 
         ctx.beginPath();
