@@ -26,7 +26,8 @@ const strings = {
     speed       : 0.05,
     resolution  : 50,    // how many samples inside duration
 
-    pts: [],
+    pts : [],
+    traj: [],
     randPoint() {
         const offsetW = (1 - this.size) * W / 2;
         const offsetH = (1 - this.size) * H / 2;
@@ -53,10 +54,10 @@ const strings = {
     randMotionSequence(pt) {
         // random motion constrained by first and last position being the same
         // we can parameterize this motion as sampling a bezier curve with start and end point being the same (loop)
-        const endPt = pt;
+        const endPt = dp.clone(pt);
         // this.speed controls the magnitude of motion (how far the control points can be)
-        endPt.cp1 = randAdjacentPoint(endPt, this.speed * W);
-        endPt.cp2 = randAdjacentPoint(endPt, this.speed * W);
+        endPt.cp1 = this.randAdjacentPoint(endPt, this.speed * W);
+        endPt.cp2 = this.randAdjacentPoint(endPt, this.speed * W);
 
         // sample along curve
         const pos = [];
@@ -79,6 +80,8 @@ const strings = {
             // reduce to a nicer initial shape by being convex and non-intersecting
             this.pts = convexHull(this.pts);
         }
+
+        // place points
         this.pts.forEach(pt => {
             // no control points for linear
             if (this.order === 1) {
@@ -89,7 +92,8 @@ const strings = {
                 pt.cp2 = this.randControlPoint(pt);
             }
         });
-        // smooth the first point
+
+        // smooth connections
         if (this.smooth) {
             this.pts.forEach((pt, i) => {
                 this.pts[i].cp1 =
@@ -105,11 +109,47 @@ const strings = {
             });
         }
 
+        // calculate trajectories over time
+        // map each point to their pos in time
+        const poss = [];
+        this.pts.forEach(pt => {
+            poss.push(this.randMotionSequence(pt));
+        });
+        const cp1s = [];
+        const cp2s = [];
+        if (this.order > 1) {
+            this.pts.forEach(pt => {
+                cp1s.push(this.randMotionSequence(pt.cp1));
+            });
+            if (this.order > 2) {
+                this.pts.forEach(pt => {
+                    cp2s.push(this.randMotionSequence(pt.cp2));
+                });
+            }
+        }
+
+        // convert to a map from time to point
+        this.traj = [];
+        for (let t = 0; t < this.resolution; ++t) {
+            const curPts = [];
+            this.traj[t] = curPts;
+            curPts.length = this.pts.length;
+
+            this.pts.forEach((pt, i) => {
+                curPts[i] = poss[i][t];
+                if (cp1s.length) {
+                    curPts[i].cp1 = cp1s[i][t];
+                    if (cp2s.length) {
+                        curPts[i].cp2 = cp2s[i][t];
+                    }
+                }
+            });
+        }
+
         ctx.beginPath();
         dp.drawPoints(ctx, ...this.pts, this.pts[0]);
         ctx.stroke();
 
-        // TODO calculate positions of points over time with constraint of being back after duration
     },
 
     // TODO animate
