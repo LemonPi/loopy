@@ -36,29 +36,14 @@ const strings = {
             // reduce to a nicer initial shape by being convex and non-intersecting
             this.pts = convexHull(this.pts);
         }
-        this.pts.forEach((pt, i) => {
+        this.pts.forEach(pt => {
             // no control points for linear
             if (this.order === 1) {
                 return;
             }
-
-            // first few points gets randomly selected control points
-            // or if smooth is turned off
-            if (i < 1 || !this.smooth) {
-                pt.cp1 = this.randPoint();
-                if (this.order === 3) {
-                    pt.cp2 = this.randPoint();
-                }
-            } else {
-                // first control point is a continuation of the previous one
-                // quadratic
-                pt.cp1 =
-                    dp.continueCurve(this.pts[indexWrap(this.pts, i - 2)],
-                        this.pts[indexWrap(this.pts, i - 1)],
-                        1);
-                if (this.order === 3) {
-                    pt.cp2 = this.randPoint();
-                }
+            pt.cp1 = this.randPoint();
+            if (this.order === 3) {
+                pt.cp2 = this.randPoint();
             }
         });
         // smooth the first point
