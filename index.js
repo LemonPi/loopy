@@ -107,13 +107,13 @@ const gui = new dat.GUI();
 gui.add(strings, 'seed').listen();
 gui.add(strings, 'duration', 0, 20);
 gui.add(strings, 'numPts', 0, 20).step(1);
-gui.add(strings, 'numStrings', 1, 3).step(1);
+// gui.add(strings, 'numStrings', 1, 3).step(1);
 gui.add(strings, 'size', 0, 1);
 gui.add(strings, 'minCurvature', 0, 0.3);
 gui.add(strings, 'maxCurvature', 0, 0.5);
 gui.add(strings, 'order', 1, 3).step(1);
 gui.add(strings, 'smooth');
 gui.add(strings, 'reroll');
-gui.add(strings, 'save to GIF');
+// gui.add(strings, 'save to GIF');
 
 
