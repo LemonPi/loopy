@@ -28,7 +28,7 @@ function getWrappedElement(a, i) {
 }
 
 const strings = {
-    seed        : 'randomness',
+    seed        : 'loopy',
     duration    : 4,
     numPts      : 6,
     numStrings  : 1,
