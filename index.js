@@ -27,11 +27,10 @@ function getWrappedElement(a, i) {
 
 ctx.lineWidth = 2;
 ctx.lineJoin = "round";
-const strings = {
+const loops = {
     seed        : 'loopy',
     duration    : 4,
     numPts      : 6,
-    numStrings  : 1,
     size        : 0.5,
     minCurvature: 0.05,
     maxCurvature: 0.5,
@@ -238,38 +237,38 @@ const strings = {
     }
 };
 
-strings.initPts('weird');
+loops.initPts('weird');
 
 
 const gui = new dat.GUI();
-gui.remember(strings);
-gui.add(strings, 'seed').listen().onFinishChange(function (value) {
-    strings.initPts(value);
+gui.remember(loops);
+gui.add(loops, 'seed').listen().onFinishChange(function (value) {
+    loops.initPts(value);
 });
-gui.add(strings, 'duration', 0, 20);
-gui.add(strings, 'numPts', 0, 20).step(1);
-gui.add(strings, 'size', 0, 1);
-gui.add(strings, 'minCurvature', 0, 0.3);
-gui.add(strings, 'maxCurvature', 0, 0.5);
-gui.add(strings, 'order', 1, 3).step(1);
-gui.add(strings, 'smooth');
-gui.add(strings, 'speed', 0, 0.4);
-gui.add(strings, 'thickness', 0.1, 10).onFinishChange(function (value) {
+gui.add(loops, 'duration', 0, 20);
+gui.add(loops, 'numPts', 0, 20).step(1);
+gui.add(loops, 'size', 0, 1);
+gui.add(loops, 'minCurvature', 0, 0.3);
+gui.add(loops, 'maxCurvature', 0, 0.5);
+gui.add(loops, 'order', 1, 3).step(1);
+gui.add(loops, 'smooth');
+gui.add(loops, 'speed', 0, 0.4);
+gui.add(loops, 'thickness', 0.1, 10).onFinishChange(function (value) {
     ctx.lineWidth = value;
 });
-gui.addColor(strings, 'colour').onFinishChange(function (value) {
+gui.addColor(loops, 'colour').onFinishChange(function (value) {
     ctx.strokeStyle = value;
 });
-gui.addColor(strings, 'background').onFinishChange(function (value) {
+gui.addColor(loops, 'background').onFinishChange(function (value) {
     document.body.style.backgroundColor = value;
 });
-gui.add(strings, 'dashed').onFinishChange(function (dashed) {
+gui.add(loops, 'dashed').onFinishChange(function (dashed) {
     if (dashed) {
         ctx.setLineDash([5, 15]);
     } else {
         ctx.setLineDash([]);
     }
 });
-gui.add(strings, 'reroll');
+gui.add(loops, 'reroll');
 
 
