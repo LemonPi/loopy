@@ -79,8 +79,8 @@ strings.initPts();
 
 const gui = new dat.GUI();
 gui.add(strings, 'duration', 0, 20);
-gui.add(strings, 'numPts', 0, 20);
-gui.add(strings, 'numStrings', 1, 3);
+gui.add(strings, 'numPts', 0, 20).step(1);
+gui.add(strings, 'numStrings', 1, 3).step(1);
 gui.add(strings, 'size', 0, 1);
 gui.add(strings, 'order', 1, 3).step(1);
 gui.add(strings, 'smooth');
