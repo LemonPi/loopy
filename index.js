@@ -60,17 +60,31 @@ const strings = {
     randMotionSequence(pt) {
         // random motion constrained by first and last position being the same
         // we can parameterize this motion as sampling a bezier curve with start and end point being the same (loop)
-        const endPt = dp.clone(pt);
+
+        // at minimum for a 2D trajectory we need 2 points
+        // from p1 -> p2 -> p1
+        const p1 = dp.clone(pt);
+        const p2 = this.randAdjacentPoint(p1, this.speed * W);
+
         // this.speed controls the magnitude of motion (how far the control points can be)
-        // TODO have option to make trajectories smooth
-        endPt.cp1 = this.randAdjacentPoint(endPt, this.speed * W);
-        endPt.cp2 = this.randAdjacentPoint(endPt, this.speed * W);
+        p1.cp2 = this.randAdjacentPoint(p1, this.speed * W);
+        p2.cp2 = this.randAdjacentPoint(p2, this.speed * W);
+
+        // continue from p2 -> p1
+        p2.cp1 = dp.continueCurve(p2, p1, 1);
+        // continue from p1 -> p2
+        p1.cp1 = dp.continueCurve(p1, p2, 1);
 
         // sample along curve
         const pos = [];
         pos.length = this.resolution;
+        const dividePoint = this.resolution / 2;
         for (let t = 0; t < this.resolution; ++t) {
-            pos[t] = dp.getPointOnCurve(t / this.resolution, pt, endPt);
+            if (t < dividePoint) {
+                pos[t] = dp.getPointOnCurve(t / dividePoint, p1, p2);
+            } else {
+                pos[t] = dp.getPointOnCurve((t - dividePoint) / dividePoint, p2, p1);
+            }
         }
 
         return pos;
