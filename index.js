@@ -1,6 +1,6 @@
 const dp = drawpoint;
 const canvas = document.createElement("canvas");
-const ctx = canvas.getContext("2d");
+const ctx = new Context2DTracked(canvas.getContext("2d"));
 const W = screen.width;
 const H = screen.height;
 
@@ -9,29 +9,67 @@ canvas.width = W;
 canvas.height = H;
 document.body.appendChild(canvas);
 
+function indexWrap(a, i) {
+    return (a.length + i) % a.length;
+}
 
 const strings = {
     duration  : 10,
     numPts    : 10,
     numStrings: 1,
     size      : 0.5,
-    order     : 1,
-    smoothness: 0,
+    order     : 3,
+    smoothness: 0.5,
 
     pts: [],
+    randPoint() {
+        const offsetW = (1 - this.size) * W / 2;
+        const offsetH = (1 - this.size) * H / 2;
+        return dp.point(offsetW + Math.random() * W * this.size, offsetH + Math.random() * H *
+                                                                 this.size);
+    },
     initPts() {
         ctx.clearRect(0, 0, W, H);
         this.pts = [];
-        const offsetW = (1 - this.size) * W / 2;
-        const offsetH = (1 - this.size) * H / 2;
         while (this.pts.length < this.numPts) {
-            this.pts.push(
-                dp.point(offsetW + Math.random() * W * this.size, offsetH + Math.random() * H *
-                                                                  this.size));
+            this.pts.push(this.randPoint());
             // reduce to a nicer initial shape by being convex and non-intersecting
             this.pts = convexHull(this.pts);
         }
-        // TODO add control points for each point corresponding to order
+        this.pts.forEach((pt, i) => {
+            // no control points for linear
+            if (this.order === 1) {
+                return;
+            }
+
+            // first few points gets randomly selected control points
+            // or if smoothness is turned off
+            if (i < 1 || this.smoothness === 0) {
+                pt.cp1 = this.randPoint();
+                if (this.order === 3) {
+                    pt.cp2 = this.randPoint();
+                }
+            } else {
+                // first control point is a continuation of the previous one
+                // quadratic
+                pt.cp1 =
+                    dp.continueCurve(this.pts[indexWrap(this.pts, i - 2)],
+                        this.pts[indexWrap(this.pts, i - 1)],
+                        this.smoothness);
+                if (this.order === 3) {
+                    pt.cp2 = this.randPoint();
+                }
+            }
+        });
+        // smooth the first point
+        if (this.smoothness > 0) {
+            this.pts.forEach((pt, i) => {
+                this.pts[i].cp1 =
+                    dp.continueCurve(this.pts[indexWrap(this.pts, i - 2)],
+                        this.pts[indexWrap(this.pts, i - 1)],
+                        this.smoothness);
+            });
+        }
 
         ctx.beginPath();
         dp.drawPoints(ctx, ...this.pts, this.pts[0]);
@@ -59,8 +97,8 @@ gui.add(strings, 'duration', 0, 20);
 gui.add(strings, 'numPts', 0, 20);
 gui.add(strings, 'numStrings', 1, 3);
 gui.add(strings, 'size', 0, 1);
-gui.add(strings, 'order', 1, 3);
-gui.add(strings, 'smoothness', 0, 5);
+gui.add(strings, 'order', 1, 3).step(1);
+gui.add(strings, 'smoothness', 0, 1);
 gui.add(strings, 'reroll');
 gui.add(strings, 'save to GIF');
 
