@@ -1,8 +1,18 @@
 const dp = drawpoint;
 const canvas = document.createElement("canvas");
 const ctx = new Context2DTracked(canvas.getContext("2d"));
-const W = screen.width;
-const H = screen.height;
+
+let w = window,
+    d = document,
+    e = d.documentElement,
+    g = d.getElementsByTagName('body')[0],
+    x = w.innerWidth || e.clientWidth || g.clientWidth,
+    y = w.innerHeight || e.clientHeight || g.clientHeight;
+
+const W = x;
+const H = y;
+// const W = screen.width;
+// const H = screen.height;
 
 canvas.id = "display";
 canvas.width = W;
@@ -27,7 +37,7 @@ const strings = {
     maxCurvature: 0.5,
     order       : 3,
     smooth      : true,
-    speed       : 0.2,
+    speed       : 0.1,
     resolution  : 50,    // how many samples inside duration
 
     pts               : [],
@@ -224,11 +234,11 @@ const strings = {
     }
 };
 
-strings.initPts('hello');
+strings.initPts('weird');
 
 const gui = new dat.GUI();
 gui.add(strings, 'seed').listen().onFinishChange(function (value) {
-    strings.initPts(strings.seed);
+    strings.initPts(value);
 });
 gui.add(strings, 'duration', 0, 20);
 gui.add(strings, 'numPts', 0, 20).step(1);
