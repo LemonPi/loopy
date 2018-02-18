@@ -23,6 +23,8 @@ const strings = {
     maxCurvature: 0.5,
     order       : 3,
     smooth      : true,
+    speed       : 0.05,
+    resolution  : 50,    // how many samples inside duration
 
     pts: [],
     randPoint() {
@@ -43,6 +45,27 @@ const strings = {
                 return cp;
             }
         }
+    },
+    randAdjacentPoint(pt, maxDist) {
+        return dp.point(pt.x + (Math.random() * 2 - 1) * maxDist, pt.y + (Math.random() * 2 - 1) *
+                                                                  maxDist);
+    },
+    randMotionSequence(pt) {
+        // random motion constrained by first and last position being the same
+        // we can parameterize this motion as sampling a bezier curve with start and end point being the same (loop)
+        const endPt = pt;
+        // this.speed controls the magnitude of motion (how far the control points can be)
+        endPt.cp1 = randAdjacentPoint(endPt, this.speed * W);
+        endPt.cp2 = randAdjacentPoint(endPt, this.speed * W);
+
+        // sample along curve
+        const pos = [];
+        pos.length = this.resolution;
+        for (let t = 0; t < this.resolution; ++t) {
+            pos[t] = dp.getPointOnCurve(t / this.resolution, pt, endPt);
+        }
+
+        return pos;
     },
     initPts(seed) {
         ctx.clearRect(0, 0, W, H);
@@ -113,6 +136,7 @@ gui.add(strings, 'minCurvature', 0, 0.3);
 gui.add(strings, 'maxCurvature', 0, 0.5);
 gui.add(strings, 'order', 1, 3).step(1);
 gui.add(strings, 'smooth');
+gui.add(strings, 'speed', 0, 0.2);
 gui.add(strings, 'reroll');
 // gui.add(strings, 'save to GIF');
 
