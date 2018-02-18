@@ -20,7 +20,7 @@ function getWrappedElement(a, i) {
 const strings = {
     seed        : 'randomness',
     duration    : 4,
-    numPts      : 10,
+    numPts      : 6,
     numStrings  : 1,
     size        : 0.5,
     minCurvature: 0.05,
@@ -227,7 +227,9 @@ const strings = {
 strings.initPts('hello');
 
 const gui = new dat.GUI();
-gui.add(strings, 'seed').listen();
+gui.add(strings, 'seed').listen().onFinishChange(function (value) {
+    strings.initPts(strings.seed);
+});
 gui.add(strings, 'duration', 0, 20);
 gui.add(strings, 'numPts', 0, 20).step(1);
 // gui.add(strings, 'numStrings', 1, 3).step(1);
