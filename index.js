@@ -19,7 +19,7 @@ const strings = {
     numStrings: 1,
     size      : 0.5,
     order     : 3,
-    smoothness: 0.5,
+    smooth    : true,
 
     pts: [],
     randPoint() {
@@ -43,8 +43,8 @@ const strings = {
             }
 
             // first few points gets randomly selected control points
-            // or if smoothness is turned off
-            if (i < 1 || this.smoothness === 0) {
+            // or if smooth is turned off
+            if (i < 1 || !this.smooth) {
                 pt.cp1 = this.randPoint();
                 if (this.order === 3) {
                     pt.cp2 = this.randPoint();
@@ -55,19 +55,19 @@ const strings = {
                 pt.cp1 =
                     dp.continueCurve(this.pts[indexWrap(this.pts, i - 2)],
                         this.pts[indexWrap(this.pts, i - 1)],
-                        this.smoothness);
+                        1);
                 if (this.order === 3) {
                     pt.cp2 = this.randPoint();
                 }
             }
         });
         // smooth the first point
-        if (this.smoothness > 0) {
+        if (this.smooth) {
             this.pts.forEach((pt, i) => {
                 this.pts[i].cp1 =
                     dp.continueCurve(this.pts[indexWrap(this.pts, i - 2)],
                         this.pts[indexWrap(this.pts, i - 1)],
-                        this.smoothness);
+                        1);
             });
         }
 
@@ -98,7 +98,7 @@ gui.add(strings, 'numPts', 0, 20);
 gui.add(strings, 'numStrings', 1, 3);
 gui.add(strings, 'size', 0, 1);
 gui.add(strings, 'order', 1, 3).step(1);
-gui.add(strings, 'smoothness', 0, 1);
+gui.add(strings, 'smooth');
 gui.add(strings, 'reroll');
 gui.add(strings, 'save to GIF');
 
