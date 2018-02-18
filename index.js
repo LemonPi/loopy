@@ -14,6 +14,7 @@ function indexWrap(a, i) {
 }
 
 const strings = {
+    seed      : 'randomness',
     duration  : 10,
     numPts    : 10,
     numStrings: 1,
@@ -28,8 +29,12 @@ const strings = {
         return dp.point(offsetW + Math.random() * W * this.size, offsetH + Math.random() * H *
                                                                  this.size);
     },
-    initPts() {
+    initPts(seed) {
         ctx.clearRect(0, 0, W, H);
+
+        this.seed = seed;
+        Math.seedrandom(this.seed);
+
         this.pts = [];
         while (this.pts.length < this.numPts) {
             this.pts.push(this.randPoint());
@@ -67,7 +72,7 @@ const strings = {
 
     reroll() {
         console.log('reroll');
-        this.initPts();
+        this.initPts(new Date().getTime());
     },
     "save to GIF"() {
         console.log("save to GIF");
@@ -75,9 +80,10 @@ const strings = {
     }
 };
 
-strings.initPts();
+strings.initPts('hello');
 
 const gui = new dat.GUI();
+gui.add(strings, 'seed').listen();
 gui.add(strings, 'duration', 0, 20);
 gui.add(strings, 'numPts', 0, 20).step(1);
 gui.add(strings, 'numStrings', 1, 3).step(1);
