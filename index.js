@@ -11,8 +11,6 @@ let w = window,
 
 const W = x;
 const H = y;
-// const W = screen.width;
-// const H = screen.height;
 
 canvas.id = "display";
 canvas.width = W;
@@ -27,6 +25,8 @@ function getWrappedElement(a, i) {
     return a[indexWrap(a, i)];
 }
 
+ctx.lineWidth = 2;
+ctx.lineJoin = "round";
 const strings = {
     seed        : 'loopy',
     duration    : 4,
@@ -38,6 +38,10 @@ const strings = {
     order       : 3,
     smooth      : true,
     speed       : 0.1,
+    thickness   : ctx.lineWidth,
+    colour      : "#000",
+    background  : "#fff",
+    dashed      : false,
     resolution  : 50,    // how many samples inside duration
 
     pts               : [],
@@ -236,6 +240,7 @@ const strings = {
 
 strings.initPts('weird');
 
+
 const gui = new dat.GUI();
 gui.add(strings, 'seed').listen().onFinishChange(function (value) {
     strings.initPts(value);
@@ -249,6 +254,22 @@ gui.add(strings, 'maxCurvature', 0, 0.5);
 gui.add(strings, 'order', 1, 3).step(1);
 gui.add(strings, 'smooth');
 gui.add(strings, 'speed', 0, 0.4);
+gui.add(strings, 'thickness', 0.1, 10).onFinishChange(function (value) {
+    ctx.lineWidth = value;
+});
+gui.addColor(strings, 'colour').onFinishChange(function (value) {
+    ctx.strokeStyle = value;
+});
+gui.addColor(strings, 'background').onFinishChange(function (value) {
+    document.body.style.backgroundColor = value;
+});
+gui.add(strings, 'dashed').onFinishChange(function (dashed) {
+    if (dashed) {
+        ctx.setLineDash([5, 15]);
+    } else {
+        ctx.setLineDash([]);
+    }
+});
 gui.add(strings, 'reroll');
 // gui.add(strings, 'save to GIF');
 
