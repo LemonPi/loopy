@@ -14,13 +14,15 @@ function indexWrap(a, i) {
 }
 
 const strings = {
-    seed      : 'randomness',
-    duration  : 10,
-    numPts    : 10,
-    numStrings: 1,
-    size      : 0.5,
-    order     : 3,
-    smooth    : true,
+    seed        : 'randomness',
+    duration    : 10,
+    numPts      : 10,
+    numStrings  : 1,
+    size        : 0.5,
+    minCurvature: 0.05,
+    maxCurvature: 0.5,
+    order       : 3,
+    smooth      : true,
 
     pts: [],
     randPoint() {
@@ -28,6 +30,19 @@ const strings = {
         const offsetH = (1 - this.size) * H / 2;
         return dp.point(offsetW + Math.random() * W * this.size, offsetH + Math.random() * H *
                                                                  this.size);
+    },
+    randControlPoint(pt) {
+        // restrict control points' distances to the end point
+        while (true) {
+            const cp = this.randPoint();
+            const dist = dp.norm(dp.diff(pt, cp));
+            if (this.minCurvature > this.maxCurvature) {
+                return cp;
+            }
+            if (dist > this.minCurvature * W && dist < this.maxCurvature * W) {
+                return cp;
+            }
+        }
     },
     initPts(seed) {
         ctx.clearRect(0, 0, W, H);
@@ -46,9 +61,9 @@ const strings = {
             if (this.order === 1) {
                 return;
             }
-            pt.cp1 = this.randPoint();
+            pt.cp1 = this.randControlPoint(pt);
             if (this.order === 3) {
-                pt.cp2 = this.randPoint();
+                pt.cp2 = this.randControlPoint(pt);
             }
         });
         // smooth the first point
@@ -94,6 +109,8 @@ gui.add(strings, 'duration', 0, 20);
 gui.add(strings, 'numPts', 0, 20).step(1);
 gui.add(strings, 'numStrings', 1, 3).step(1);
 gui.add(strings, 'size', 0, 1);
+gui.add(strings, 'minCurvature', 0, 0.3);
+gui.add(strings, 'maxCurvature', 0, 0.5);
 gui.add(strings, 'order', 1, 3).step(1);
 gui.add(strings, 'smooth');
 gui.add(strings, 'reroll');
