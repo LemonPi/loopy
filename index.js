@@ -13,9 +13,13 @@ function indexWrap(a, i) {
     return (a.length + i) % a.length;
 }
 
+function getWrappedElement(a, i) {
+    return a[indexWrap(a, i)];
+}
+
 const strings = {
     seed        : 'randomness',
-    duration    : 10,
+    duration    : 4,
     numPts      : 10,
     numStrings  : 1,
     size        : 0.5,
@@ -23,11 +27,13 @@ const strings = {
     maxCurvature: 0.5,
     order       : 3,
     smooth      : true,
-    speed       : 0.05,
+    speed       : 0.2,
     resolution  : 50,    // how many samples inside duration
 
-    pts : [],
-    traj: [],
+    pts               : [],
+    traj              : [],
+    animationId       : null,
+    startAnimationTime: null,
     randPoint() {
         const offsetW = (1 - this.size) * W / 2;
         const offsetH = (1 - this.size) * H / 2;
@@ -56,6 +62,7 @@ const strings = {
         // we can parameterize this motion as sampling a bezier curve with start and end point being the same (loop)
         const endPt = dp.clone(pt);
         // this.speed controls the magnitude of motion (how far the control points can be)
+        // TODO have option to make trajectories smooth
         endPt.cp1 = this.randAdjacentPoint(endPt, this.speed * W);
         endPt.cp2 = this.randAdjacentPoint(endPt, this.speed * W);
 
@@ -68,8 +75,45 @@ const strings = {
 
         return pos;
     },
-    initPts(seed) {
+
+    animate(timestamp) {
+        if (!this.startAnimationTime) {
+            this.startAnimationTime = timestamp;
+        }
+        // duration is in seconds while timestamp is in milliseconds
+        const duration = this.duration * 1000;
+        // how much time inside current loop relative to duration has progressed
+        const loopProgress = (timestamp - this.startAnimationTime) % duration;
+        // convert that to an index to match resolution
+        const loopIndex = loopProgress / duration * this.resolution;
+        // decimal part is progress from current trajectory to the next one
+        const t = Math.floor(loopIndex);
+        // should be all positive so this operation is OK
+        const progressToNext = loopIndex - t;
+
+        const pts = [];
+        this.traj[t].forEach((pt, i) => {
+            pts[i] = dp.transformCurve(progressToNext,
+                // previous point of current trajectory
+                getWrappedElement(this.traj[t], i - 1),
+                // from this point of this trajectory
+                pt,
+                // to this point of the next trajectory
+                getWrappedElement(this.traj, t + 1)[i]);
+        });
+
+        this.clearCanvas();
+        ctx.beginPath();
+        dp.drawPoints(ctx, ...pts, pts[0]);
+        ctx.stroke();
+
+        this.animationId = window.requestAnimationFrame(this.animate.bind(this));
+    },
+    clearCanvas() {
         ctx.clearRect(0, 0, W, H);
+    },
+    initPts(seed) {
+        this.clearCanvas();
 
         this.seed = seed;
         Math.seedrandom(this.seed);
@@ -118,6 +162,7 @@ const strings = {
         const cp1s = [];
         const cp2s = [];
         if (this.order > 1) {
+            // TODO maintain smoothness throughout trajectory for smooth curves
             this.pts.forEach(pt => {
                 cp1s.push(this.randMotionSequence(pt.cp1));
             });
@@ -150,9 +195,9 @@ const strings = {
         dp.drawPoints(ctx, ...this.pts, this.pts[0]);
         ctx.stroke();
 
+        // animate
+        this.animationId = window.requestAnimationFrame(this.animate.bind(this));
     },
-
-    // TODO animate
 
     reroll() {
         console.log('reroll');
@@ -176,7 +221,7 @@ gui.add(strings, 'minCurvature', 0, 0.3);
 gui.add(strings, 'maxCurvature', 0, 0.5);
 gui.add(strings, 'order', 1, 3).step(1);
 gui.add(strings, 'smooth');
-gui.add(strings, 'speed', 0, 0.2);
+gui.add(strings, 'speed', 0, 0.4);
 gui.add(strings, 'reroll');
 // gui.add(strings, 'save to GIF');
 
