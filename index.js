@@ -112,6 +112,16 @@ const strings = {
     clearCanvas() {
         ctx.clearRect(0, 0, W, H);
     },
+    smoothTrajectory(traj) {
+        traj.forEach((pt, i) => {
+            traj[i].cp1 =
+                dp.continueCurve(getWrappedElement(traj, i - 2), getWrappedElement(traj, i - 1), 1);
+        });
+        traj.forEach((pt, i) => {
+            traj[i].cp1 =
+                dp.continueCurve(getWrappedElement(traj, i - 2), getWrappedElement(traj, i - 1), 1);
+        });
+    },
     initPts(seed) {
         this.clearCanvas();
 
@@ -139,18 +149,7 @@ const strings = {
 
         // smooth connections
         if (this.smooth) {
-            this.pts.forEach((pt, i) => {
-                this.pts[i].cp1 =
-                    dp.continueCurve(this.pts[indexWrap(this.pts, i - 2)],
-                        this.pts[indexWrap(this.pts, i - 1)],
-                        1);
-            });
-            this.pts.forEach((pt, i) => {
-                this.pts[i].cp1 =
-                    dp.continueCurve(this.pts[indexWrap(this.pts, i - 2)],
-                        this.pts[indexWrap(this.pts, i - 1)],
-                        1);
-            });
+            this.smoothTrajectory(this.pts);
         }
 
         // calculate trajectories over time
@@ -162,7 +161,6 @@ const strings = {
         const cp1s = [];
         const cp2s = [];
         if (this.order > 1) {
-            // TODO maintain smoothness throughout trajectory for smooth curves
             this.pts.forEach(pt => {
                 cp1s.push(this.randMotionSequence(pt.cp1));
             });
@@ -189,6 +187,9 @@ const strings = {
                     }
                 }
             });
+            if (this.smooth) {
+                this.smoothTrajectory(curPts);
+            }
         }
 
         ctx.beginPath();
